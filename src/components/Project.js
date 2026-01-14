@@ -10,6 +10,15 @@ function Projects({ user, setUser }) {
   const [selectedProject, setSelectedProject] = useState(null);
   const navigate = useNavigate();
 
+  // สำหรับ dropdown
+  const [users, setUsers] = useState([]);
+  const [roles, setRoles] = useState([]);
+
+  // modal เพิ่มสมาชิก
+  const [showAddMember, setShowAddMember] = useState(false);
+  const [memberUserId, setMemberUserId] = useState("");
+  const [memberRoleId, setMemberRoleId] = useState("");
+
   useEffect(() => {
     if (!user) {
       navigate("/login");
@@ -79,6 +88,58 @@ function Projects({ user, setUser }) {
     }
   };
 
+  const openAddMember = async (projectId) => {
+    const token = localStorage.getItem("token");
+
+    setSelectedProject(projectId);
+    setShowAddMember(true);
+
+    try {
+      const [userRes, roleRes] = await Promise.all([
+        axios.get("http://127.0.0.1:8000/api/users", {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        axios.get("http://127.0.0.1:8000/api/roles", {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+      ]);
+
+      setUsers(userRes.data.users);
+      setRoles(roleRes.data.roles);
+    } catch (err) {
+      console.error(err);
+      alert("โหลดข้อมูลผู้ใช้หรือ role ไม่สำเร็จ");
+    }
+  };
+
+  const addMember = async () => {
+    if (!memberUserId || !memberRoleId) {
+      alert("กรุณาเลือกผู้ใช้และ role");
+      return;
+    }
+
+    const token = localStorage.getItem("token");
+
+    try {
+      await axios.post(
+        `http://127.0.0.1:8000/api/projects/${selectedProject}/members`,
+        {
+          user_id: memberUserId,
+          role_id: memberRoleId,
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      alert("เพิ่มสมาชิกสำเร็จ");
+      setShowAddMember(false);
+      setMemberUserId("");
+      setMemberRoleId("");
+      fetchMembers(selectedProject);
+    } catch (err) {
+      alert(err.response?.data?.message || "เพิ่มสมาชิกไม่สำเร็จ");
+    }
+  };
+
   const handleLogout = async () => {
     const token = localStorage.getItem("token");
 
@@ -111,8 +172,15 @@ function Projects({ user, setUser }) {
           </button>
         </div>
 
+        <div
+          onClick={() => navigate("/projects/create")}
+          className="cursor-pointer text-white bg-green-500 hover:bg-green-600 font-semibold py-3 px-6 rounded-lg shadow-md text-lg text-center"
+        >
+          + Add Project
+        </div>
+
         {/* User Info */}
-        <div className="mb-6 p-4 bg-white rounded shadow">
+        <div className="my-6 p-4 bg-white rounded shadow">
           {userData ? (
             <p className="text-lg font-medium text-gray-700">
               Welcome, <span className="font-bold">{userData.name}</span>
@@ -141,6 +209,14 @@ function Projects({ user, setUser }) {
                   </div>
 
                   <div className="flex gap-2">
+                    {(userData.is_admin || project.role_name === "Manager") && (
+                      <button
+                        onClick={() => openAddMember(project.id)}
+                        className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 transition"
+                      >
+                        เพิ่มสมาชิก
+                      </button>
+                    )}
                     {(userData.is_admin || project.role_name === "Manager") && (
                       <button
                         onClick={() => fetchMembers(project.id)}
@@ -219,6 +295,57 @@ function Projects({ user, setUser }) {
           <p className="text-gray-500">
             ไม่มีข้อมูลสมาชิกหรือ Pins ในโปรเจคนี้
           </p>
+        )}
+
+        {showAddMember && (
+          <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center">
+            <div className="bg-white p-6 rounded w-96">
+              <h3 className="font-semibold mb-4">เพิ่มสมาชิก</h3>
+
+              {/* USER */}
+              <select
+                value={memberUserId}
+                onChange={(e) => setMemberUserId(e.target.value)}
+                className="w-full border px-3 py-2 rounded mb-3"
+              >
+                <option value="">เลือกผู้ใช้</option>
+                {users.map((u) => (
+                  <option key={u.id} value={u.id}>
+                    {u.name} ({u.email})
+                  </option>
+                ))}
+              </select>
+
+              {/* ROLE */}
+              <select
+                value={memberRoleId}
+                onChange={(e) => setMemberRoleId(e.target.value)}
+                className="w-full border px-3 py-2 rounded mb-4"
+              >
+                <option value="">เลือก Role</option>
+                {roles.map((r) => (
+                  <option key={r.id} value={r.id}>
+                    {r.name}
+                  </option>
+                ))}
+              </select>
+
+              <div className="flex justify-end gap-2">
+                <button
+                  onClick={() => setShowAddMember(false)}
+                  className="border px-3 py-1 rounded"
+                >
+                  ยกเลิก
+                </button>
+                <button
+                  onClick={addMember}
+                  className="bg-green-500 text-white px-3 py-1 rounded"
+                >
+                  เพิ่ม
+                </button>
+              </div>
+            </div>
+          </div>
         )}
       </div>
     </div>
