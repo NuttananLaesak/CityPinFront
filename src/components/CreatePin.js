@@ -51,7 +51,7 @@ function CreatePin({ user }) {
 
     try {
       await axios.post(
-        "http://127.0.0.1:8000/api/my-pins/create",
+        "http://127.0.0.1:8000/api/pins",
         {
           code,
           title,

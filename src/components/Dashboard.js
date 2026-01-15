@@ -80,6 +80,12 @@ function Dashboard({ user, setUser }) {
           >
             <h3 className="text-lg font-semibold">Category</h3>
           </div>
+          <div
+            onClick={() => navigate("/projects/manage")}
+            className="bg-white p-4 rounded shadow cursor-pointer hover:bg-gray-50 transition"
+          >
+            <h3 className="text-lg font-semibold">Manage Project</h3>
+          </div>
         </div>
       </div>
     </div>

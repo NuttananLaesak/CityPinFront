@@ -20,7 +20,7 @@ function CreateCategoryForm({ user }) {
 
     try {
       const res = await axios.post(
-        "http://127.0.0.1:8000/api/categories/create",
+        "http://127.0.0.1:8000/api/categories",
         {
           name_th: nameTh,
           name_en: nameEn,

@@ -7,6 +7,9 @@ function MyPins({ user, setUser }) {
   const [pendingPins, setPendingPins] = useState([]);
   const [rejectedPins, setRejectedPins] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [approvedProjects, setApprovedProjects] = useState([]);
+  const [pendingProjects, setPendingProjects] = useState([]);
+  const [rejectedProjects, setRejectedProjects] = useState([]);
   const [approvedCategories, setApprovedCategories] = useState([]);
   const [pendingCategories, setPendingCategories] = useState([]);
   const [rejectedCategories, setRejectedCategories] = useState([]);
@@ -24,21 +27,24 @@ function MyPins({ user, setUser }) {
 
       try {
         const [approvedRes, pendingRes, rejectedRes] = await Promise.all([
-          axios.get("http://127.0.0.1:8000/api/my-pins/approved", {
+          axios.get("http://127.0.0.1:8000/api/pins/approved", {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          axios.get("http://127.0.0.1:8000/api/my-pins/pending", {
+          axios.get("http://127.0.0.1:8000/api/pins/pending", {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          axios.get("http://127.0.0.1:8000/api/my-pins/rejected", {
+          axios.get("http://127.0.0.1:8000/api/pins/rejected", {
             headers: { Authorization: `Bearer ${token}` },
           }),
         ]);
 
+        console.log(pendingRes.data);
         setApprovedPins(approvedRes.data.pins);
-        console.log(approvedRes.data.pins);
         setPendingPins(pendingRes.data.pins);
         setRejectedPins(rejectedRes.data.pins);
+        setApprovedProjects(approvedRes.data.projects);
+        setPendingProjects(pendingRes.data.projects);
+        setRejectedProjects(rejectedRes.data.projects);
         setApprovedCategories(approvedRes.data.categories);
         setPendingCategories(pendingRes.data.categories);
         setRejectedCategories(rejectedRes.data.categories);
@@ -74,7 +80,7 @@ function MyPins({ user, setUser }) {
         {pins.map((pin) => (
           <li key={pin.id} className="p-4 bg-white rounded shadow">
             <h3 className="text-lg font-semibold">{pin.title}</h3>
-            <p className="text-gray-600">{pin.description}</p>
+            {/* <p className="text-gray-600">{pin.description}</p> */}
             <p className="text-sm text-gray-500">
               Project: {pin.project?.name ?? "-"}
             </p>
@@ -92,13 +98,26 @@ function MyPins({ user, setUser }) {
       <p className="text-gray-400">ไม่มีข้อมูล</p>
     );
 
-  const renderDropdown = (categories) => {
+  const renderCategoryDropdown = (categories) => {
     return (
       <select className="border rounded p-1 mb-4">
         <option value="">All Categories</option>
         {categories.map((cat) => (
           <option key={cat.id} value={cat.id}>
             {cat.name_th} / {cat.name_en}
+          </option>
+        ))}
+      </select>
+    );
+  };
+
+  const renderProjectDropdown = (projects) => {
+    return (
+      <select className="border rounded p-1 mb-4">
+        <option value="">All Projects</option>
+        {projects.map((project) => (
+          <option key={project.id} value={project.id}>
+            {project.name}
           </option>
         ))}
       </select>
@@ -137,7 +156,10 @@ function MyPins({ user, setUser }) {
                 <h3 className="text-xl font-bold mb-3 text-green-600">
                   Approved
                 </h3>
-                {renderDropdown(approvedCategories)}
+                <div className="flex gap-4">
+                  {renderProjectDropdown(approvedProjects)}
+                  {renderCategoryDropdown(approvedCategories)}
+                </div>
               </div>
               {renderPins(approvedPins)}
             </div>
@@ -148,7 +170,10 @@ function MyPins({ user, setUser }) {
                 <h3 className="text-xl font-bold mb-3 text-yellow-500">
                   Pending
                 </h3>
-                {renderDropdown(pendingCategories)}
+                <div className="flex gap-4">
+                  {renderProjectDropdown(pendingProjects)}
+                  {renderCategoryDropdown(pendingCategories)}
+                </div>
               </div>
               {renderPins(pendingPins)}
             </div>
@@ -159,7 +184,10 @@ function MyPins({ user, setUser }) {
                 <h3 className="text-xl font-bold mb-3 text-red-500">
                   Rejected
                 </h3>
-                {renderDropdown(rejectedCategories)}
+                <div className="flex gap-4">
+                  {renderProjectDropdown(rejectedProjects)}
+                  {renderCategoryDropdown(rejectedCategories)}
+                </div>
               </div>
               {renderPins(rejectedPins)}
             </div>

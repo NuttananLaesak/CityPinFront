@@ -14,6 +14,7 @@ import CreateCategory from "./components/CreateCategory";
 import EditCategory from "./components/EditCategory";
 import CreatePin from "./components/CreatePin";
 import CreateProject from "./components/CreateProject";
+import ManageProjects from "./components/ManageProject";
 
 function App() {
   const [user, setUser] = useState(null);
@@ -125,6 +126,17 @@ function App() {
           element={
             user ? (
               <CreateProject user={user} setUser={setUser} />
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
+
+        <Route
+          path="/projects/manage"
+          element={
+            user ? (
+              <ManageProjects user={user} setUser={setUser} />
             ) : (
               <Navigate to="/login" />
             )
