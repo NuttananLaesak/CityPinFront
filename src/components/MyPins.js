@@ -79,7 +79,12 @@ function MyPins({ user, setUser }) {
       <ul className="space-y-4">
         {pins.map((pin) => (
           <li key={pin.id} className="p-4 bg-white rounded shadow">
-            <h3 className="text-lg font-semibold">{pin.title}</h3>
+            <h3
+              onClick={() => navigate(`/pins/${pin.id}`)}
+              className="text-lg font-semibold cursor-pointer"
+            >
+              {pin.title}
+            </h3>
             {/* <p className="text-gray-600">{pin.description}</p> */}
             <p className="text-sm text-gray-500">
               Project: {pin.project?.name ?? "-"}

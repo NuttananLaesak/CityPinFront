@@ -15,6 +15,7 @@ import EditCategory from "./components/EditCategory";
 import CreatePin from "./components/CreatePin";
 import CreateProject from "./components/CreateProject";
 import ManageProjects from "./components/ManageProject";
+import PinDetail from "./components/PinDetail";
 
 function App() {
   const [user, setUser] = useState(null);
@@ -115,6 +116,17 @@ function App() {
           element={
             user ? (
               <CreatePin user={user} setUser={setUser} />
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
+
+        <Route
+          path="/pins/:id"
+          element={
+            user ? (
+              <PinDetail user={user} setUser={setUser} />
             ) : (
               <Navigate to="/login" />
             )
