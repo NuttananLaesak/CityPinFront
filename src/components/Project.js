@@ -9,6 +9,8 @@ function Projects({ user, setUser }) {
   const [pins, setPins] = useState([]);
   const [selectedProject, setSelectedProject] = useState(null);
   const navigate = useNavigate();
+  const [categoryId, setCategoryId] = useState("");
+  const [categories, setCategories] = useState([]);
 
   useEffect(() => {
     if (!user) {
@@ -61,19 +63,24 @@ function Projects({ user, setUser }) {
   };
 
   // ฟังก์ชันเรียก pins
-  const fetchPins = async (projectId) => {
+  const fetchPins = async (projectId, category = "") => {
     const token = localStorage.getItem("token");
 
     try {
       const res = await axios.get(
         `http://127.0.0.1:8000/api/projects/${projectId}/pins`,
-        { headers: { Authorization: `Bearer ${token}` } }
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          params: {
+            category_id: category || undefined,
+          },
+        }
       );
 
       setPins(res.data.pins);
-      console.log(res.data.pins);
+      setCategories(res.data.categories);
       setSelectedProject(projectId);
-      setMembers([]); // ซ่อน members ตอนดู pins
+      setMembers([]);
     } catch (err) {
       console.log(err);
     }
@@ -156,10 +163,20 @@ function Projects({ user, setUser }) {
                     </button>
 
                     <button
-                      onClick={() => fetchPins(project.id)}
+                      onClick={() => {
+                        setCategoryId("");
+                        fetchPins(project.id);
+                      }}
                       className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 transition"
                     >
                       ดู Pins
+                    </button>
+
+                    <button
+                      onClick={() => navigate(`/projects/edit/${project.id}`)}
+                      className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 transition"
+                    >
+                      Edit
                     </button>
                   </div>
                 </li>
@@ -194,7 +211,25 @@ function Projects({ user, setUser }) {
         {/* Pins List */}
         {selectedProject && pins.length > 0 && (
           <div className="mb-6 p-4 bg-white rounded shadow">
-            <h3 className="text-xl font-semibold mb-3">Pins ในโปรเจค</h3>
+            <div className="flex justify-between">
+              <h3 className="text-xl font-semibold mb-3">Pins ในโปรเจค</h3>
+              <select
+                className="border p-2 rounded"
+                value={categoryId}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setCategoryId(value);
+                  fetchPins(selectedProject, value);
+                }}
+              >
+                <option value="">All Categories</option>
+                {categories.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name_th} / {c.name_en}
+                  </option>
+                ))}
+              </select>
+            </div>
             <ul className="space-y-2">
               {pins.map((pin) => (
                 <li

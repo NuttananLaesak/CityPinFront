@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-function MyPins({ user, setUser }) {
+function AllPins({ user, setUser }) {
   const navigate = useNavigate();
 
   const [pins, setPins] = useState([]);
@@ -35,7 +35,7 @@ function MyPins({ user, setUser }) {
       if (projectId) params.project_id = projectId;
       if (categoryId) params.category_id = categoryId;
 
-      const res = await axios.get("http://127.0.0.1:8000/api/pins", {
+      const res = await axios.get("http://127.0.0.1:8000/api/pins/all", {
         headers: { Authorization: `Bearer ${token}` },
         params,
       });
@@ -169,4 +169,4 @@ function MyPins({ user, setUser }) {
   );
 }
 
-export default MyPins;
+export default AllPins;

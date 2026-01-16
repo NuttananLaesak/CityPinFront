@@ -5,7 +5,6 @@ import { useParams, useNavigate } from "react-router-dom";
 function EditCategoryForm({ user }) {
   const { id } = useParams();
   const navigate = useNavigate();
-
   const [nameTh, setNameTh] = useState("");
   const [nameEn, setNameEn] = useState("");
   const [icon, setIcon] = useState("");
@@ -21,20 +20,21 @@ function EditCategoryForm({ user }) {
 
     const fetchCategory = async () => {
       const token = localStorage.getItem("token");
+
       try {
         const res = await axios.get(
-          `http://127.0.0.1:8000/api/categories/all`,
+          `http://127.0.0.1:8000/api/categories/${id}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
-        const category = res.data.categories.find((c) => c.id === parseInt(id));
-        if (category) {
-          setNameTh(category.name_th);
-          setNameEn(category.name_en);
-          setIcon(category.icon || "");
-          setIsActive(category.is_active);
-        }
+
+        const category = res.data.category;
+
+        setNameTh(category.name_th);
+        setNameEn(category.name_en);
+        setIcon(category.icon || "");
+        setIsActive(category.is_active);
       } catch (err) {
         console.error(err);
         setMessage("Failed to load category");

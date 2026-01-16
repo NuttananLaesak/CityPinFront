@@ -23,6 +23,12 @@ function ManageProjects({ user, setUser }) {
   const [rejectReason, setRejectReason] = useState("");
   const [selectedPinId, setSelectedPinId] = useState(null);
 
+  const [statuses, setStatuses] = useState([]);
+  const [categories, setCategories] = useState([]);
+
+  const [selectedStatus, setSelectedStatus] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
+
   useEffect(() => {
     if (!user) {
       navigate("/login");
@@ -74,19 +80,32 @@ function ManageProjects({ user, setUser }) {
   };
 
   // ฟังก์ชันเรียก pins
-  const fetchPins = async (projectId) => {
+  const fetchPins = async (
+    projectId,
+    status = selectedStatus,
+    categoryId = selectedCategory
+  ) => {
     const token = localStorage.getItem("token");
+
+    const params = {};
+    if (status) params.status = status;
+    if (categoryId) params.category_id = categoryId;
 
     try {
       const res = await axios.get(
-        `http://127.0.0.1:8000/api/projects/${projectId}/pins/all `,
-        { headers: { Authorization: `Bearer ${token}` } }
+        `http://127.0.0.1:8000/api/projects/${projectId}/pins/all`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          params,
+        }
       );
 
       setPins(res.data.pins);
-      console.log(res.data.pins);
+      setStatuses(res.data.statuses || []);
+      setCategories(res.data.categories || []);
+
       setSelectedProject(projectId);
-      setMembers([]); // ซ่อน members ตอนดู pins
+      setMembers([]);
     } catch (err) {
       console.log(err);
     }
@@ -314,7 +333,43 @@ function ManageProjects({ user, setUser }) {
         {/* Pins List */}
         {selectedProject && pins.length > 0 && (
           <div className="mb-6 p-4 bg-white rounded shadow">
-            <h3 className="text-xl font-semibold mb-3">Pins ในโปรเจค</h3>
+            <div className="flex justify-between">
+              <h3 className="text-xl font-semibold mb-3">Pins ในโปรเจค</h3>
+              <div className="flex gap-4">
+                <select
+                  className="border p-2 rounded"
+                  value={selectedStatus}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setSelectedStatus(value);
+                    fetchPins(selectedProject, value, selectedCategory);
+                  }}
+                >
+                  <option value="">All Status</option>
+                  {statuses.map((s) => (
+                    <option key={s.key} value={s.key}>
+                      {s.label}
+                    </option>
+                  ))}
+                </select>
+                <select
+                  className="border p-2 rounded"
+                  value={selectedCategory}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setSelectedCategory(value);
+                    fetchPins(selectedProject, selectedStatus, value);
+                  }}
+                >
+                  <option value="">All Categories</option>
+                  {categories.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name_th} / {c.name_en}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
             <ul className="space-y-2">
               {pins.map((pin) => (
                 <li

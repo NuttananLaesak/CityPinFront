@@ -5,15 +5,18 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
+import Register from "./components/Register";
 import Login from "./components/Login";
 import Dashboard from "./components/Dashboard";
 import Projects from "./components/Project";
 import MyPins from "./components/MyPins";
+import AllPins from "./components/AllPins";
 import Categories from "./components/Categories";
 import CreateCategory from "./components/CreateCategory";
 import EditCategory from "./components/EditCategory";
 import CreatePin from "./components/CreatePin";
 import CreateProject from "./components/CreateProject";
+import EditProject from "./components/EditProject";
 import ManageProjects from "./components/ManageProject";
 import PinDetail from "./components/PinDetail";
 
@@ -38,6 +41,13 @@ function App() {
   return (
     <Router>
       <Routes>
+        <Route
+          path="/register"
+          element={
+            user ? <Navigate to="/dashboard" /> : <Register setUser={setUser} />
+          }
+        />
+
         <Route
           path="/login"
           element={
@@ -72,6 +82,17 @@ function App() {
           element={
             user ? (
               <MyPins user={user} setUser={setUser} />
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
+
+        <Route
+          path="/all-pins"
+          element={
+            user ? (
+              <AllPins user={user} setUser={setUser} />
             ) : (
               <Navigate to="/login" />
             )
@@ -138,6 +159,17 @@ function App() {
           element={
             user ? (
               <CreateProject user={user} setUser={setUser} />
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
+
+        <Route
+          path="/projects/edit/:id"
+          element={
+            user ? (
+              <EditProject user={user} setUser={setUser} />
             ) : (
               <Navigate to="/login" />
             )
