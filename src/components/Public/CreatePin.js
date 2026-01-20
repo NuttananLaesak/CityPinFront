@@ -11,10 +11,12 @@ function CreatePin({ user }) {
   const [categoryId, setCategoryId] = useState("");
   const [lat, setLat] = useState("");
   const [lng, setLng] = useState("");
+  const [images, setImages] = useState([]);
   const [addressText, setAddressText] = useState("");
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const [imagePreviews, setImagePreviews] = useState([]);
 
   const token = localStorage.getItem("token");
 
@@ -45,25 +47,24 @@ function CreatePin({ user }) {
     setMessage("");
 
     try {
-      await api.post(
-        "pins",
-        {
-          code,
-          title,
-          description,
-          project_id: projectId || null,
-          category_id: categoryId || null,
-          lat,
-          lng,
-          address_text: addressText,
+      const formData = new FormData();
+      formData.append("code", code);
+      formData.append("title", title);
+      formData.append("description", description);
+      formData.append("project_id", projectId || "");
+      formData.append("category_id", categoryId || "");
+      formData.append("lat", lat);
+      formData.append("lng", lng);
+      formData.append("address_text", addressText);
+      for (let i = 0; i < images.length; i++) {
+        formData.append("images[]", images[i]);
+      }
+      await api.post("pins", formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
         },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            Accept: "application/json",
-          },
-        }
-      );
+      });
 
       alert("Pin created successfully");
       navigate(-1);
@@ -170,6 +171,23 @@ function CreatePin({ user }) {
           </select>
         </div>
 
+        <div>
+          <label className="block mb-1">Images</label>
+          <input
+            type="file"
+            multiple
+            accept="image/*"
+            onChange={(e) => {
+              const files = Array.from(e.target.files);
+              setImages(files);
+
+              const previews = files.map((file) => URL.createObjectURL(file));
+              setImagePreviews(previews);
+            }}
+            className="w-full"
+          />
+        </div>
+
         <button
           type="submit"
           disabled={loading}
@@ -178,6 +196,19 @@ function CreatePin({ user }) {
           {loading ? "Creating..." : "Create Pin"}
         </button>
       </form>
+
+      {imagePreviews.length > 0 && (
+        <div className="grid grid-cols-3 gap-2 mt-2">
+          {imagePreviews.map((src, index) => (
+            <img
+              key={index}
+              src={src}
+              alt={`preview-${index}`}
+              className="w-full h-24 object-cover rounded border"
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

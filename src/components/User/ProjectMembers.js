@@ -49,8 +49,8 @@ function ProjectMembers({ user, setUser }) {
     try {
       setShowAddMember(true);
       const [userRes, roleRes] = await Promise.all([
-        api.get("/users"),
-        api.get("/roles"),
+        api.get(`/projects/${projectId}/available-users`),
+        api.get(`/projects/available-roles`),
       ]);
 
       setUsers(userRes.data.users);

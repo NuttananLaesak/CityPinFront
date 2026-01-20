@@ -68,7 +68,7 @@ function ManageProjects({ user, setUser }) {
     try {
       const res = await axios.get(
         `http://127.0.0.1:8000/api/projects/${projectId}/members`,
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
 
       setMembers(res.data.members);
@@ -83,7 +83,7 @@ function ManageProjects({ user, setUser }) {
   const fetchPins = async (
     projectId,
     status = selectedStatus,
-    categoryId = selectedCategory
+    categoryId = selectedCategory,
   ) => {
     const token = localStorage.getItem("token");
 
@@ -97,7 +97,7 @@ function ManageProjects({ user, setUser }) {
         {
           headers: { Authorization: `Bearer ${token}` },
           params,
-        }
+        },
       );
 
       setPins(res.data.pins);
@@ -119,10 +119,13 @@ function ManageProjects({ user, setUser }) {
 
     try {
       const [userRes, roleRes] = await Promise.all([
-        axios.get("http://127.0.0.1:8000/api/users", {
-          headers: { Authorization: `Bearer ${token}` },
-        }),
-        axios.get("http://127.0.0.1:8000/api/roles", {
+        axios.get(
+          `http://127.0.0.1:8000/api/projects/${projectId}/available-users`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          },
+        ),
+        axios.get(`http://127.0.0.1:8000/api/projects/available-roles`, {
           headers: { Authorization: `Bearer ${token}` },
         }),
       ]);
@@ -150,7 +153,7 @@ function ManageProjects({ user, setUser }) {
           user_id: memberUserId,
           role_id: memberRoleId,
         },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
 
       alert("เพิ่มสมาชิกสำเร็จ");
@@ -170,7 +173,7 @@ function ManageProjects({ user, setUser }) {
       await axios.post(
         `http://127.0.0.1:8000/api/pins/${pinId}/approve`,
         {},
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
 
       alert("Approve สำเร็จ");
@@ -198,7 +201,7 @@ function ManageProjects({ user, setUser }) {
       await axios.post(
         `http://127.0.0.1:8000/api/pins/${selectedPinId}/reject`,
         { reject_reason: rejectReason },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
 
       alert("Reject สำเร็จ");
@@ -216,7 +219,7 @@ function ManageProjects({ user, setUser }) {
       await axios.post(
         "http://127.0.0.1:8000/api/auth/logout",
         {},
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
     } catch (error) {
       console.log("Logout error:", error);

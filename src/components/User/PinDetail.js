@@ -100,6 +100,16 @@ function PinDetail({ user, setUser }) {
               <span className="text-gray-500">{pin.approver?.email}</span>)
             </div>
           </div>
+          {pin.images && pin.images.length > 0 && (
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-4">
+              {pin.images.map((img) => (
+                <img
+                  src={`http://127.0.0.1:8000/storage/${img.path}`}
+                  alt="pin"
+                />
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
