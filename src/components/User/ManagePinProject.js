@@ -180,33 +180,41 @@ function ApprovePinProject({ user, setUser }) {
                     </div>
                   </div>
 
-                  {pin.status === "pending" && (
-                    <div className="flex flex-col items-center gap-2 mt-3">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          approvePin(pin.id);
-                        }}
-                        className="bg-green-500 text-white px-3 py-1 rounded"
-                      >
-                        Approve
-                      </button>
+                  <div className="flex flex-col items-center gap-2 mt-3">
+                    {pin.status === "pending" && (
+                      <>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            approvePin(pin.id);
+                          }}
+                          className="bg-green-500 text-white px-3 py-1 rounded"
+                        >
+                          Approve
+                        </button>
 
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          openRejectModal(pin.id);
-                        }}
-                        className="bg-red-500 text-white px-3 py-1 rounded"
-                      >
-                        Reject
-                      </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openRejectModal(pin.id);
+                          }}
+                          className="bg-red-500 text-white px-3 py-1 rounded"
+                        >
+                          Reject
+                        </button>
+                      </>
+                    )}
 
-                      <button className="bg-yellow-500 text-white px-3 py-1 rounded">
-                        Edit
-                      </button>
-                    </div>
-                  )}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/pin/edit/${pin.id}`);
+                      }}
+                      className="bg-yellow-500 text-white px-3 py-1 rounded"
+                    >
+                      Edit
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}

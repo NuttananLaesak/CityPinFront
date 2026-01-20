@@ -66,7 +66,7 @@ function CreatePin({ user }) {
       );
 
       alert("Pin created successfully");
-      navigate(`/projects/${projectId}/my-pins`);
+      navigate(-1);
     } catch (err) {
       console.error(err.response?.data || err.message);
       alert("Error creating pin");

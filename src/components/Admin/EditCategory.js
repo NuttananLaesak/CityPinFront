@@ -66,7 +66,7 @@ function EditCategoryForm({ user }) {
       setMessage("Category updated successfully");
       // กลับไปหน้า list
       console.log("Update response:", res.data);
-      setTimeout(() => navigate("/admin/category/all"), 100);
+      navigate(-1);
     } catch (err) {
       console.error(err.response?.data || err.message);
       setMessage("Error updating category");

@@ -182,7 +182,7 @@ function AllPins({ user, setUser }) {
 
                 {/* ✅ ปุ่ม Edit */}
                 <button
-                  onClick={() => navigate(`/admin/pin/edit/${pin.id}`)}
+                  onClick={() => navigate(`/pin/edit/${pin.id}`)}
                   className="text-blue-500 hover:underline font-medium"
                 >
                   Edit

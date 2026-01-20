@@ -108,12 +108,18 @@ function ApprovePinProject({ user, setUser }) {
                   </div>
                   <div>Category: {pin.category?.name_th ?? "-"}</div>
                   <div>
-                    Create By: {pin.creator.name ?? "-"} (
-                    <span className="text-gray-500">{pin.creator.email}</span>)
+                    Create By: {pin.creator?.name ?? "-"} (
+                    <span className="text-gray-500">
+                      {pin.creator?.email ?? "-"}
+                    </span>
+                    )
                   </div>
                   <div>
-                    Approve By: {pin.approver.name ?? "-"} (
-                    <span className="text-gray-500">{pin.approver.email}</span>)
+                    Approve By: {pin.approver?.name ?? "-"} (
+                    <span className="text-gray-500">
+                      {pin?.approver.email ?? "-"}
+                    </span>
+                    )
                   </div>
                 </div>
               </div>

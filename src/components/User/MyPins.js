@@ -118,25 +118,41 @@ function MyPins({ user, setUser }) {
             {pins.map((pin) => (
               <div
                 key={pin.id}
-                className="bg-white p-4 rounded shadow hover:bg-gray-50 transition"
+                className="bg-white p-4 rounded shadow hover:bg-gray-50 transition flex justify-between"
               >
-                <h3 className="text-lg font-semibold">{pin.title}</h3>
-                <p className="text-gray-600 text-sm mt-1">{pin.description}</p>
+                <div>
+                  <h3 className="text-lg font-semibold">{pin.title}</h3>
+                  <p className="text-gray-600 text-sm mt-1">
+                    {pin.description}
+                  </p>
 
-                <div className="mt-3 text-sm text-gray-500">
-                  <div>
-                    Status:{" "}
-                    <span className={getStatusStyle(pin.status)}>
-                      {pin.status ?? "-"}
-                    </span>
-                  </div>
-                  <div>Category: {pin.category?.name_th ?? "-"}</div>
-                  {pin.status === "rejected" && (
-                    <div className="text-red-500">
-                      Reason: {pin.reject_reason || "-"}
+                  <div className="mt-3 text-sm text-gray-500">
+                    <div>
+                      Status:{" "}
+                      <span className={getStatusStyle(pin.status)}>
+                        {pin.status ?? "-"}
+                      </span>
                     </div>
-                  )}
+                    <div>Category: {pin.category?.name_th ?? "-"}</div>
+                    {pin.status === "rejected" && (
+                      <div className="text-red-500">
+                        Reason: {pin.reject_reason || "-"}
+                      </div>
+                    )}
+                  </div>
                 </div>
+
+                {pin.status === "pending" && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/pin/edit/${pin.id}`);
+                    }}
+                    className="text-blue-500 hover:underline font-medium"
+                  >
+                    Edit
+                  </button>
+                )}
               </div>
             ))}
           </div>

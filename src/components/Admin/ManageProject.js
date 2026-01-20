@@ -242,12 +242,11 @@ function ManageProjects({ user, setUser }) {
         </div>
 
         <div
-          onClick={() => navigate("/projects/create")}
+          onClick={() => navigate("/project/create")}
           className="cursor-pointer text-white bg-green-500 hover:bg-green-600 font-semibold py-3 px-6 rounded-lg shadow-md text-lg text-center"
         >
           + Add Project
         </div>
-
         {/* User Info */}
         <div className="my-6 p-4 bg-white rounded shadow">
           {userData ? (
@@ -302,9 +301,7 @@ function ManageProjects({ user, setUser }) {
                     </button>
 
                     <button
-                      onClick={() =>
-                        navigate(`/admin/project/edit/${project.id}`)
-                      }
+                      onClick={() => navigate(`/project/edit/${project.id}`)}
                       className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 transition"
                     >
                       Edit

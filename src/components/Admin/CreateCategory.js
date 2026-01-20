@@ -38,7 +38,7 @@ function CreateCategoryForm({ user }) {
       setNameEn("");
       setIcon("");
       setIsActive(true);
-      setTimeout(() => navigate("/admin/category/all"), 100);
+      navigate(-1);
     } catch (err) {
       console.error(err.response?.data || err.message);
       setMessage("Error creating category");

@@ -37,14 +37,16 @@ function CreateProject({ user }) {
         }
       );
 
-      alert("สร้างโปรเจคสำเร็จ 🎉");
+      console.log("Project created:", res.data);
+      setMessage("สร้างโปรเจคสำเร็จ 🎉");
       setName("");
       setDescription("");
-      console.log(res.data);
-      navigate("/admin/project/all");
+
+      // กลับไปหน้า projects
+      navigate(-1);
     } catch (err) {
       console.error(err.response?.data || err.message);
-      alert("เกิดข้อผิดพลาดในการสร้างโปรเจค");
+      setMessage("เกิดข้อผิดพลาดในการสร้างโปรเจค");
     } finally {
       setLoading(false);
     }
@@ -97,7 +99,7 @@ function CreateProject({ user }) {
 
           <button
             type="button"
-            onClick={() => navigate("/admin/project/all")}
+            onClick={() => navigate(-1)}
             className="w-full border py-2 rounded hover:bg-gray-100"
           >
             ยกเลิก

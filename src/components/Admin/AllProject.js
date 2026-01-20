@@ -112,7 +112,7 @@ function Projects({ user, setUser }) {
         </div>
 
         <div
-          onClick={() => navigate("/admin/project/create")}
+          onClick={() => navigate("/project/create")}
           className="cursor-pointer text-white bg-green-500 hover:bg-green-600 font-semibold py-3 px-6 rounded-lg shadow-md text-lg text-center"
         >
           + Add Project
