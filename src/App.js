@@ -5,23 +5,34 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
+import ProtectedRoute from "./routes/ProtectedRoute";
 import Register from "./components/Register";
 import Login from "./components/Login";
-import Dashboard from "./components/Dashboard";
-import Projects from "./components/Project";
-import MyPins from "./components/MyPins";
-import AllPins from "./components/AllPins";
-import Categories from "./components/Categories";
-import CreateCategory from "./components/CreateCategory";
-import EditCategory from "./components/EditCategory";
-import CreatePin from "./components/CreatePin";
-import CreateProject from "./components/CreateProject";
-import EditProject from "./components/EditProject";
-import ManageProjects from "./components/ManageProject";
-import PinDetail from "./components/PinDetail";
+import CreateProject from "./components/User/CreateProject";
+import SelectProject from "./components/User/SelectProject";
+import ProjectMembers from "./components/User/ProjectMembers";
+import Dashboard from "./components/User/Dashboard";
+import MyPins from "./components/User/MyPins";
+import ApprovePinProject from "./components/User/ApprovePinProject";
+import ManagePinProject from "./components/User/ManagePinProject";
+import PinDetail from "./components/User/PinDetail";
+import CreatePin from "./components/User/CreatePin";
+import AdminDashboard from "./components/Admin/Dashboard";
+import EditPin from "./components/Admin/EditPins";
+import AllPins from "./components/Admin/AllPins";
+import AdminCreateProject from "./components/Admin/CreateProject";
+import AdminEditProject from "./components/Admin/EditProject";
+import AdminManageProject from "./components/Admin/ManageProject";
+import AllProjects from "./components/Admin/AllProject";
+import CreateCategory from "./components/Admin/CreateCategory";
+import EditCategory from "./components/Admin/EditCategory";
+import AllCategoty from "./components/Admin/Categories";
 
 function App() {
   const [user, setUser] = useState(null);
+
+  const redirectByRole = (user) =>
+    user.is_admin ? "/admin/dashboard" : "/selectproject";
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -44,118 +55,27 @@ function App() {
         <Route
           path="/register"
           element={
-            user ? <Navigate to="/dashboard" /> : <Register setUser={setUser} />
+            user ? (
+              <Navigate to={redirectByRole(user)} />
+            ) : (
+              <Register setUser={setUser} />
+            )
           }
         />
 
         <Route
           path="/login"
           element={
-            user ? <Navigate to="/dashboard" /> : <Login setUser={setUser} />
-          }
-        />
-
-        <Route
-          path="/dashboard"
-          element={
             user ? (
-              <Dashboard user={user} setUser={setUser} />
+              <Navigate to={redirectByRole(user)} />
             ) : (
-              <Navigate to="/login" />
+              <Login setUser={setUser} />
             )
           }
         />
 
         <Route
-          path="/projects"
-          element={
-            user ? (
-              <Projects user={user} setUser={setUser} />
-            ) : (
-              <Navigate to="/login" />
-            )
-          }
-        />
-
-        <Route
-          path="/my-pins"
-          element={
-            user ? (
-              <MyPins user={user} setUser={setUser} />
-            ) : (
-              <Navigate to="/login" />
-            )
-          }
-        />
-
-        <Route
-          path="/all-pins"
-          element={
-            user ? (
-              <AllPins user={user} setUser={setUser} />
-            ) : (
-              <Navigate to="/login" />
-            )
-          }
-        />
-
-        <Route
-          path="/categories"
-          element={
-            user ? (
-              <Categories user={user} setUser={setUser} />
-            ) : (
-              <Navigate to="/login" />
-            )
-          }
-        />
-
-        <Route
-          path="/categories/create"
-          element={
-            user ? (
-              <CreateCategory user={user} setUser={setUser} />
-            ) : (
-              <Navigate to="/login" />
-            )
-          }
-        />
-
-        <Route
-          path="/categories/edit/:id"
-          element={
-            user ? (
-              <EditCategory user={user} setUser={setUser} />
-            ) : (
-              <Navigate to="/login" />
-            )
-          }
-        />
-
-        <Route
-          path="/pins/create"
-          element={
-            user ? (
-              <CreatePin user={user} setUser={setUser} />
-            ) : (
-              <Navigate to="/login" />
-            )
-          }
-        />
-
-        <Route
-          path="/pins/:id"
-          element={
-            user ? (
-              <PinDetail user={user} setUser={setUser} />
-            ) : (
-              <Navigate to="/login" />
-            )
-          }
-        />
-
-        <Route
-          path="/projects/create"
+          path="/project/create"
           element={
             user ? (
               <CreateProject user={user} setUser={setUser} />
@@ -166,10 +86,10 @@ function App() {
         />
 
         <Route
-          path="/projects/edit/:id"
+          path="/selectproject"
           element={
             user ? (
-              <EditProject user={user} setUser={setUser} />
+              <SelectProject user={user} setUser={setUser} />
             ) : (
               <Navigate to="/login" />
             )
@@ -177,20 +97,150 @@ function App() {
         />
 
         <Route
-          path="/projects/manage"
+          path="/projects/:projectId/members"
+          element={<ProjectMembers user={user} setUser={setUser} />}
+        />
+
+        <Route
+          path="/dashboard/:projectId"
           element={
             user ? (
-              <ManageProjects user={user} setUser={setUser} />
+              <Dashboard user={user} setUser={setUser} />
             ) : (
               <Navigate to="/login" />
             )
+          }
+        />
+
+        <Route
+          path="/projects/:projectId/my-pins"
+          element={<MyPins user={user} setUser={setUser} />}
+        />
+
+        <Route
+          path="/projects/:projectId/approve-pin-project"
+          element={<ApprovePinProject user={user} setUser={setUser} />}
+        />
+
+        <Route
+          path="/projects/:projectId/manage-pin-project"
+          element={<ManagePinProject user={user} setUser={setUser} />}
+        />
+
+        <Route
+          path="/projects/:projectId/pins/:pinId"
+          element={<PinDetail user={user} setUser={setUser} />}
+        />
+
+        <Route
+          path="/projects/:projectId/pins/create"
+          element={
+            user ? (
+              <CreatePin user={user} setUser={setUser} />
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
+
+        <Route
+          path="/admin/dashboard"
+          element={
+            <ProtectedRoute user={user} adminOnly>
+              <AdminDashboard user={user} setUser={setUser} />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/pin/edit/:id"
+          element={
+            <ProtectedRoute user={user} adminOnly>
+              <EditPin user={user} setUser={setUser} />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/pin/all"
+          element={
+            <ProtectedRoute user={user} adminOnly>
+              <AllPins user={user} setUser={setUser} />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="admin/project/create"
+          element={
+            <ProtectedRoute user={user} adminOnly>
+              <AdminCreateProject user={user} setUser={setUser} />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/project/edit/:id"
+          element={
+            <ProtectedRoute user={user} adminOnly>
+              <AdminEditProject user={user} setUser={setUser} />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/project/manage"
+          element={
+            <ProtectedRoute user={user} adminOnly>
+              <AdminManageProject user={user} setUser={setUser} />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/project/all"
+          element={
+            <ProtectedRoute user={user} adminOnly>
+              <AllProjects user={user} setUser={setUser} />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/category/create"
+          element={
+            <ProtectedRoute user={user} adminOnly>
+              <CreateCategory user={user} setUser={setUser} />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/category/edit/:id"
+          element={
+            <ProtectedRoute user={user} adminOnly>
+              <EditCategory user={user} setUser={setUser} />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/category/all"
+          element={
+            <ProtectedRoute user={user} adminOnly>
+              <AllCategoty user={user} setUser={setUser} />
+            </ProtectedRoute>
           }
         />
 
         <Route
           path="*"
           element={
-            user ? <Navigate to="/dashboard" /> : <Navigate to="/login" />
+            user ? (
+              <Navigate to={redirectByRole(user)} />
+            ) : (
+              <Navigate to="/login" />
+            )
           }
         />
       </Routes>

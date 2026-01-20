@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import api from "../api/axios";
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 function Login({ setUser }) {
@@ -12,16 +12,15 @@ function Login({ setUser }) {
     e.preventDefault();
 
     try {
-      const response = await api.post("/auth/login", { email, password });
+      const response = await axios.post(
+        "http://127.0.0.1:8000/api/auth/login",
+        { email, password }
+      );
 
       const { token, user } = response.data;
       localStorage.setItem("token", token);
       setUser(user);
-      if (user.is_admin) {
-        navigate("/admin/dashboard");
-      } else {
-        navigate("/selectproject");
-      }
+      navigate("/dashboard");
     } catch (err) {
       setError("อีเมลหรือรหัสผ่านไม่ถูกต้อง");
     }
