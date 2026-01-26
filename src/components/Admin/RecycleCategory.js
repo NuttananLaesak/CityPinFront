@@ -5,31 +5,24 @@ import { useNavigate } from "react-router-dom";
 
 function Categories({ user, setUser }) {
   const [allCategories, setAllCategories] = useState([]);
-  const [activeCategories, setActiveCategories] = useState([]);
-  const [inactiveCategories, setInactiveCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+
   const navigate = useNavigate();
 
-  // Fetch categories
   const fetchCategories = async () => {
     const token = localStorage.getItem("token");
-    setLoading(true);
-    try {
-      const [allRes, activeRes, inactiveRes] = await Promise.all([
-        axios.get("http://127.0.0.1:8000/api/categories/all", {
-          headers: { Authorization: `Bearer ${token}` },
-        }),
-        axios.get("http://127.0.0.1:8000/api/categories", {
-          headers: { Authorization: `Bearer ${token}` },
-        }),
-        axios.get("http://127.0.0.1:8000/api/categories/inactive", {
-          headers: { Authorization: `Bearer ${token}` },
-        }),
-      ]);
 
-      setAllCategories(allRes.data.categories);
-      setActiveCategories(activeRes.data.categories);
-      setInactiveCategories(inactiveRes.data.categories);
+    try {
+      const res = await axios.get(
+        "http://127.0.0.1:8000/api/categories/recycle",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
+
+      const categories = res.data.categories;
+
+      setAllCategories(categories);
     } catch (err) {
       console.error(err);
     } finally {
@@ -65,35 +58,24 @@ function Categories({ user, setUser }) {
               </div>
             </div>
           </div>
-          <div className="flex gap-2">
-            <button
-              onClick={() => navigate(`/admin/category/edit/${cat.id}`)}
-              className="text-blue-500 hover:underline"
-            >
-              Edit
-            </button>
-            <button
-              onClick={async (e) => {
-                e.stopPropagation();
 
-                if (!window.confirm("ยืนยันลบ Pin นี้?")) return;
+          <button
+            onClick={async () => {
+              if (!window.confirm(`ต้องการกู้คืนหมวดหมู่ ${cat.name_th}?`))
+                return;
 
-                try {
-                  await api.delete(`/categories/${cat.id}`);
-                  setAllCategories((prev) =>
-                    prev.filter((c) => c.id !== cat.id),
-                  );
-                } catch (err) {
-                  console.error(err);
-                  alert("ลบไม่สำเร็จ");
-                }
-                fetchCategories();
-              }}
-              className="text-red-500 hover:underline font-medium"
-            >
-              Delete
-            </button>
-          </div>
+              try {
+                await api.post(`/categories/${cat.id}/restore`);
+                setAllCategories((prev) => prev.filter((c) => c.id !== cat.id));
+              } catch (err) {
+                alert("กู้คืนหมวดหมู่ไม่สำเร็จ");
+                console.error(err);
+              }
+            }}
+            className="text-green-500 hover:underline font-medium"
+          >
+            Restore
+          </button>
         </li>
       ))}
     </ul>
@@ -108,8 +90,6 @@ function Categories({ user, setUser }) {
         {},
         { headers: { Authorization: `Bearer ${token}` } },
       );
-    } catch (error) {
-      console.log("Logout error:", error);
     } finally {
       localStorage.removeItem("token");
       setUser(null);
@@ -121,19 +101,13 @@ function Categories({ user, setUser }) {
     <div className="min-h-screen bg-gray-100 p-6">
       <div className="max-w-4xl mx-auto space-y-8">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-3xl font-bold text-gray-800">Category</h2>
+          <h2 className="text-3xl font-bold">Recycle Category</h2>
           <button
             onClick={handleLogout}
-            className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
+            className="bg-red-500 text-white px-4 py-2 rounded"
           >
             Log Out
           </button>
-        </div>
-        <div
-          onClick={() => navigate("/admin/category/create")}
-          className="cursor-pointer text-white bg-green-500 hover:bg-green-600 font-semibold py-3 px-6 rounded-lg shadow-md text-lg text-center"
-        >
-          + Add Category
         </div>
 
         {loading ? (
@@ -145,16 +119,6 @@ function Categories({ user, setUser }) {
             <div>
               <h2 className="text-2xl font-bold mb-4">All Categories</h2>
               {renderCategoryList(allCategories)}
-            </div>
-
-            <div>
-              <h2 className="text-2xl font-bold mb-4">Active Categories</h2>
-              {renderCategoryList(activeCategories)}
-            </div>
-
-            <div>
-              <h2 className="text-2xl font-bold mb-4">Inactive Categories</h2>
-              {renderCategoryList(inactiveCategories)}
             </div>
           </>
         )}

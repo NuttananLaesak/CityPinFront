@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import axios from "axios";
+import api from "../../api/axios";
 import { useNavigate } from "react-router-dom";
 
 function CreateProject({ user }) {
@@ -24,8 +24,8 @@ function CreateProject({ user }) {
     const token = localStorage.getItem("token");
 
     try {
-      const res = await axios.post(
-        "http://127.0.0.1:8000/api/project",
+      const res = await api.post(
+        "/project",
         {
           name,
           description,
@@ -34,7 +34,7 @@ function CreateProject({ user }) {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       console.log("Project created:", res.data);

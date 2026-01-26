@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../../api/axios";
 import { useParams, useNavigate } from "react-router-dom";
 
 function EditProject({ user }) {
@@ -21,7 +21,7 @@ function EditProject({ user }) {
       const token = localStorage.getItem("token");
 
       try {
-        const res = await axios.get(`http://127.0.0.1:8000/api/project/${id}`, {
+        const res = await api.get(`/project/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -44,15 +44,15 @@ function EditProject({ user }) {
     const token = localStorage.getItem("token");
 
     try {
-      await axios.put(
-        `http://127.0.0.1:8000/api/project/${id}`,
+      await api.put(
+        `/project/${id}`,
         {
           name,
           description,
         },
         {
           headers: { Authorization: `Bearer ${token}` },
-        }
+        },
       );
 
       setMessage("อัปเดตโปรเจคสำเร็จ ✅");

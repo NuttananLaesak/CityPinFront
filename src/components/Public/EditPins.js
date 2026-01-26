@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../../api/axios";
 
 function EditPin({ user }) {
   const { id } = useParams();
@@ -31,8 +31,8 @@ function EditPin({ user }) {
       return;
     }
 
-    axios
-      .get(`http://127.0.0.1:8000/api/pins/${id}`, {
+    api
+      .get(`/pins/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {
@@ -77,16 +77,12 @@ function EditPin({ user }) {
     });
 
     try {
-      await axios.post(
-        `http://127.0.0.1:8000/api/pins/${id}?_method=PUT`,
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
+      await api.post(`/pins/${id}?_method=PUT`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
         },
-      );
+      });
 
       alert("แก้ไข Pin สำเร็จ");
       navigate(-1);

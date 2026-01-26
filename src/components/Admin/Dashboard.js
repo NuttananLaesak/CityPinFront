@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../../api/axios";
 import { useNavigate } from "react-router-dom";
 
 function Dashboard({ user, setUser }) {
@@ -17,7 +17,7 @@ function Dashboard({ user, setUser }) {
       const token = localStorage.getItem("token");
 
       try {
-        const userRes = await axios.get("http://127.0.0.1:8000/api/user", {
+        const userRes = await api.get("/user", {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -34,10 +34,10 @@ function Dashboard({ user, setUser }) {
     const token = localStorage.getItem("token");
 
     try {
-      await axios.post(
-        "http://127.0.0.1:8000/api/auth/logout",
+      await api.post(
+        "/auth/logout",
         {},
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
     } catch (error) {
       console.log("Logout error:", error);
@@ -63,16 +63,40 @@ function Dashboard({ user, setUser }) {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 text-center gap-4">
           <div
+            onClick={() => navigate("/admin/user/all")}
+            className="bg-white p-4 rounded shadow cursor-pointer hover:bg-gray-50 transition"
+          >
+            <h3 className="text-lg font-semibold">All User</h3>
+          </div>
+          <div
+            onClick={() => navigate("/admin/user/recycle")}
+            className="bg-white p-4 rounded shadow cursor-pointer hover:bg-gray-50 transition"
+          >
+            <h3 className="text-lg font-semibold">Recycle User</h3>
+          </div>
+          {/* <div
+            onClick={() => navigate("/admin/role/all")}
+            className="bg-white p-4 rounded shadow cursor-pointer hover:bg-gray-50 transition"
+          >
+            <h3 className="text-lg font-semibold">All Roles</h3>
+          </div>
+          <div
+            onClick={() => navigate("/admin/role/recycle")}
+            className="bg-white p-4 rounded shadow cursor-pointer hover:bg-gray-50 transition"
+          >
+            <h3 className="text-lg font-semibold">Recycel Roles</h3>
+          </div> */}
+          <div
             onClick={() => navigate("/admin/category/all")}
             className="bg-white p-4 rounded shadow cursor-pointer hover:bg-gray-50 transition"
           >
-            <h3 className="text-lg font-semibold">Category</h3>
+            <h3 className="text-lg font-semibold">All Category</h3>
           </div>
           <div
-            onClick={() => navigate("/admin/project/all")}
+            onClick={() => navigate("/admin/category/recycle")}
             className="bg-white p-4 rounded shadow cursor-pointer hover:bg-gray-50 transition"
           >
-            <h3 className="text-lg font-semibold">Projects</h3>
+            <h3 className="text-lg font-semibold">Recycle Category</h3>
           </div>
           <div
             onClick={() => navigate("/admin/pin/all")}
@@ -81,10 +105,28 @@ function Dashboard({ user, setUser }) {
             <h3 className="text-lg font-semibold">All Pins</h3>
           </div>
           <div
+            onClick={() => navigate(`/recycle-bin-pin`)}
+            className="bg-white p-4 rounded shadow cursor-pointer hover:bg-gray-50 transition"
+          >
+            <h3 className="text-lg font-semibold">Recycle Bin Pin</h3>
+          </div>
+          <div
+            onClick={() => navigate("/admin/project/all")}
+            className="bg-white p-4 rounded shadow cursor-pointer hover:bg-gray-50 transition"
+          >
+            <h3 className="text-lg font-semibold">Projects Approve Pin</h3>
+          </div>
+          <div
             onClick={() => navigate("/admin/project/manage")}
             className="bg-white p-4 rounded shadow cursor-pointer hover:bg-gray-50 transition"
           >
             <h3 className="text-lg font-semibold">Manage Project</h3>
+          </div>
+          <div
+            onClick={() => navigate("/admin/project/recycle")}
+            className="bg-white p-4 rounded shadow cursor-pointer hover:bg-gray-50 transition"
+          >
+            <h3 className="text-lg font-semibold">Recycle Project</h3>
           </div>
         </div>
       </div>

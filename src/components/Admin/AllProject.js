@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../../api/axios";
 import { useNavigate } from "react-router-dom";
+import PageHeader from "../../layout/PageHeader";
 
 function Projects({ user, setUser }) {
   const [projects, setProjects] = useState([]);
@@ -10,6 +11,19 @@ function Projects({ user, setUser }) {
   const navigate = useNavigate();
   const [categoryId, setCategoryId] = useState("");
   const [categories, setCategories] = useState([]);
+
+  const getStatusStyle = (status) => {
+    switch (status) {
+      case "approved":
+        return "text-green-500 font-semibold";
+      case "pending":
+        return "text-yellow-500 font-semibold";
+      case "rejected":
+        return "text-red-500 font-semibold";
+      default:
+        return "text-gray-500";
+    }
+  };
 
   useEffect(() => {
     if (!user) {
@@ -21,12 +35,9 @@ function Projects({ user, setUser }) {
       const token = localStorage.getItem("token");
 
       try {
-        const projectRes = await axios.get(
-          "http://127.0.0.1:8000/api/project/all",
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
+        const projectRes = await api.get("/project/all", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
 
         setProjects(projectRes.data.projects);
       } catch (err) {
@@ -42,10 +53,9 @@ function Projects({ user, setUser }) {
     const token = localStorage.getItem("token");
 
     try {
-      const res = await axios.get(
-        `http://127.0.0.1:8000/api/projects/${projectId}/members`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const res = await api.get(`/projects/${projectId}/members`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
       setMembers(res.data.members);
       setSelectedProject(projectId);
@@ -60,16 +70,13 @@ function Projects({ user, setUser }) {
     const token = localStorage.getItem("token");
 
     try {
-      const res = await axios.get(
-        `http://127.0.0.1:8000/api/projects/${projectId}/pins`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-          params: {
-            category_id: category || undefined,
-          },
-        }
-      );
-
+      const res = await api.get(`/projects/${projectId}/pins`, {
+        headers: { Authorization: `Bearer ${token}` },
+        params: {
+          category_id: category || undefined,
+        },
+      });
+      console.log(res.data);
       setPins(res.data.pins);
       setCategories(res.data.categories);
       setSelectedProject(projectId);
@@ -79,37 +86,10 @@ function Projects({ user, setUser }) {
     }
   };
 
-  const handleLogout = async () => {
-    const token = localStorage.getItem("token");
-
-    try {
-      await axios.post(
-        "http://127.0.0.1:8000/api/auth/logout",
-        {},
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-    } catch (error) {
-      console.log("Logout error:", error);
-    } finally {
-      localStorage.removeItem("token");
-      setUser(null);
-      navigate("/login");
-    }
-  };
-
   return (
     <div className="min-h-screen bg-gray-100 p-6">
       <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-3xl font-bold text-gray-800">Projects</h2>
-          <button
-            onClick={handleLogout}
-            className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
-          >
-            Log Out
-          </button>
-        </div>
+        <PageHeader title="All Project" setUser={setUser} />
 
         <div
           onClick={() => navigate("/project/create")}
@@ -148,12 +128,38 @@ function Projects({ user, setUser }) {
                     >
                       ดู Pins
                     </button>
+                    <button
+                      onClick={async () => {
+                        if (!window.confirm(`ยืนยันลบโปรเจค ${project.name}?`))
+                          return;
+
+                        const token = localStorage.getItem("token");
+
+                        try {
+                          await api.delete(`/project/${project.id}`, {
+                            headers: { Authorization: `Bearer ${token}` },
+                          });
+
+                          setProjects((prev) =>
+                            prev.filter((p) => p.id !== project.id),
+                          );
+                        } catch (err) {
+                          alert("ลบโปรเจคไม่สำเร็จ");
+                          console.error(err);
+                        }
+                      }}
+                      className="text-red-500 hover:underline font-medium"
+                    >
+                      Delete
+                    </button>
                   </div>
                 </li>
               ))}
             </ul>
           ) : (
-            <p className="text-gray-500">No projects assigned.</p>
+            <div className="flex justify-center items-center h-64">
+              <div className="w-12 h-12 border-4 border-green-500 border-t-transparent rounded-full animate-spin"></div>
+            </div>
           )}
         </div>
 
@@ -193,7 +199,7 @@ function Projects({ user, setUser }) {
                 }}
               >
                 <option value="">All Categories</option>
-                {categories.map((c) => (
+                {categories.filter(Boolean).map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.name_th} / {c.name_en}
                   </option>
@@ -206,19 +212,49 @@ function Projects({ user, setUser }) {
                   key={pin.id}
                   className="p-2 border rounded flex flex-col gap-1"
                 >
-                  <span className="font-medium">{pin.title}</span>
-                  <span className="text-gray-500 text-sm">
-                    {pin.description}
-                  </span>
-                  <span className="text-gray-600 text-sm">
-                    Status: {pin.status}
-                  </span>
-                  <span className="text-gray-600 text-sm">
-                    Category ID: {pin.category_id}
-                  </span>
-                  <span className="text-gray-600 text-sm">
-                    Lat: {pin.lat}, Lng: {pin.lng}
-                  </span>
+                  <p className="font-medium">{pin.title}</p>
+                  <p className="text-gray-500 text-sm">{pin.description}</p>
+                  <p className="text-gray-600 text-sm">
+                    Status:{" "}
+                    <span className={getStatusStyle(pin.status)}>
+                      {pin.status}
+                    </span>
+                  </p>
+                  <p className="text-gray-600 text-sm">
+                    Project: {pin.project.name}
+                  </p>
+                  {pin.category != null ? (
+                    <p className="text-sm text-gray-500">
+                      Category: {pin.category.name_th} / {pin.category.name_en}
+                    </p>
+                  ) : (
+                    <p className="text-sm text-gray-500">
+                      Category:{" "}
+                      <span className="text-red-500">Category has Deleted</span>
+                    </p>
+                  )}
+                  {pin.creator != null ? (
+                    <p className="text-sm text-gray-500">
+                      Creator: {pin.creator?.name} (
+                      <span>{pin.creator.email}</span>)
+                    </p>
+                  ) : (
+                    <p className="text-sm text-gray-500">
+                      Creator:{" "}
+                      <span className="text-red-500">User has Deleted</span>
+                    </p>
+                  )}
+                  {pin.approver != null ? (
+                    <p className="text-sm text-gray-500">
+                      Approver: {pin.approver?.name} (
+                      <span>{pin.approver.email}</span>)
+                    </p>
+                  ) : (
+                    <p className="text-sm text-gray-500">
+                      Approver:{" "}
+                      <span className="text-red-500">User has Deleted</span>
+                    </p>
+                  )}
                 </li>
               ))}
             </ul>

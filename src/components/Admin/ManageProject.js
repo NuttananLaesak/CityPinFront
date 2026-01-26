@@ -29,6 +29,19 @@ function ManageProjects({ user, setUser }) {
   const [selectedStatus, setSelectedStatus] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
 
+  const getStatusStyle = (status) => {
+    switch (status) {
+      case "approved":
+        return "text-green-500 font-semibold";
+      case "pending":
+        return "text-yellow-500 font-semibold";
+      case "rejected":
+        return "text-red-500 font-semibold";
+      default:
+        return "text-gray-500";
+    }
+  };
+
   useEffect(() => {
     if (!user) {
       navigate("/login");
@@ -371,7 +384,7 @@ function ManageProjects({ user, setUser }) {
                   }}
                 >
                   <option value="">All Categories</option>
-                  {categories.map((c) => (
+                  {categories.filter(Boolean).map((c) => (
                     <option key={c.id} value={c.id}>
                       {c.name_th} / {c.name_en}
                     </option>
@@ -386,19 +399,57 @@ function ManageProjects({ user, setUser }) {
                   className="p-4 border rounded flex justify-between items-center"
                 >
                   <div className="flex flex-col gap-1">
-                    <span className="font-medium">{pin.title}</span>
-                    <span className="text-gray-500 text-sm">
-                      {pin.description}
-                    </span>
-                    <span className="text-gray-600 text-sm">
-                      Status: {pin.status}
-                    </span>
-                    <span className="text-gray-600 text-sm">
-                      Category ID: {pin.category_id}
-                    </span>
-                    <span className="text-gray-600 text-sm">
-                      Lat: {pin.lat}, Lng: {pin.lng}
-                    </span>
+                    <p className="font-medium">{pin.title}</p>
+                    <p className="text-gray-500 text-sm">{pin.description}</p>
+                    <p className="text-gray-600 text-sm">
+                      Status:{" "}
+                      <span className={getStatusStyle(pin.status)}>
+                        {pin.status}
+                      </span>
+                    </p>
+                    <p className="text-gray-600 text-sm">
+                      Project: {pin.project.name}
+                    </p>
+                    {pin.category != null ? (
+                      <p className="text-sm text-gray-500">
+                        Category: {pin.category.name_th} /{" "}
+                        {pin.category.name_en}
+                      </p>
+                    ) : (
+                      <p className="text-sm text-gray-500">
+                        Category:{" "}
+                        <span className="text-red-500">
+                          Category has Deleted
+                        </span>
+                      </p>
+                    )}
+                    {pin.creator != null ? (
+                      <p className="text-sm text-gray-500">
+                        Creator: {pin.creator?.name} (
+                        <span>{pin.creator.email}</span>)
+                      </p>
+                    ) : (
+                      <p className="text-sm text-gray-500">
+                        Creator:{" "}
+                        <span className="text-red-500">User has Deleted</span>
+                      </p>
+                    )}
+                    {pin.approver != null ? (
+                      <p className="text-sm text-gray-500">
+                        Approver: {pin.approver?.name} (
+                        <span>{pin.approver.email}</span>)
+                      </p>
+                    ) : (
+                      <p className="text-sm text-gray-500">
+                        Approver:{" "}
+                        <span className="text-red-500">User has Deleted</span>
+                      </p>
+                    )}
+                    {pin.status === "rejected" && (
+                      <div className="text-red-500">
+                        Reason: {pin.reject_reason || "-"}
+                      </div>
+                    )}
                   </div>
                   {pin.status === "pending" && (
                     <div className="flex gap-2">

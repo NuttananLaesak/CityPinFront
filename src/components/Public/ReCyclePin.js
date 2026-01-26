@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
-import api from "../../api/axios";
 import { useNavigate } from "react-router-dom";
+import api from "../../api/axios";
 import PageHeader from "../../layout/PageHeader";
 
-function AllPins({ user, setUser }) {
+function RecycleBinPins({ user, setUser }) {
   const navigate = useNavigate();
-
   const [pins, setPins] = useState([]);
   const [statuses, setStatuses] = useState([]);
   const [projects, setProjects] = useState([]);
@@ -14,7 +13,6 @@ function AllPins({ user, setUser }) {
   const [status, setStatus] = useState("");
   const [projectId, setProjectId] = useState("");
   const [categoryId, setCategoryId] = useState("");
-
   const [loading, setLoading] = useState(true);
 
   const getStatusStyle = (status) => {
@@ -35,45 +33,37 @@ function AllPins({ user, setUser }) {
       navigate("/login");
       return;
     }
-    fetchPins();
-    // eslint-disable-next-line
-  }, [status, projectId, categoryId]);
 
-  const fetchPins = async () => {
-    const token = localStorage.getItem("token");
-    setLoading(true);
+    const fetchRecyclePins = async () => {
+      try {
+        setLoading(true);
+        const res = await api.get(`/pins/recycle`, {
+          params: {
+            project_id: projectId || undefined,
+            status: status || undefined,
+            category_id: categoryId || undefined,
+          },
+        });
+        setPins(res.data.pins);
+        setProjects(res.data.projects);
+        setStatuses(res.data.statuses);
+        setCategories(res.data.categories);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    try {
-      const params = {};
-      if (status) params.status = status;
-      if (projectId) params.project_id = projectId;
-      if (categoryId) params.category_id = categoryId;
-
-      const res = await api.get("/pins/all", {
-        headers: { Authorization: `Bearer ${token}` },
-        params,
-      });
-      console.log(res.data);
-      setPins(res.data.pins);
-      setStatuses(res.data.statuses);
-      setProjects(res.data.projects);
-      setCategories(res.data.categories);
-      console.log(res.data);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
+    fetchRecyclePins();
+  }, [user, projectId, status, categoryId, navigate]);
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
       <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <PageHeader title="All Pins" setUser={setUser} />
+        <PageHeader title="Recycle Bin Pins" setUser={setUser} />
 
-        {/* Filters */}
-        <div className="bg-white p-4 rounded shadow mb-6 flex gap-4">
+        <div className="bg-white p-4 rounded shadow my-6 flex gap-4">
           <select
             className="border p-2 rounded"
             value={projectId}
@@ -106,7 +96,7 @@ function AllPins({ user, setUser }) {
             onChange={(e) => setCategoryId(e.target.value)}
           >
             <option value="">All Categories</option>
-            {categories.filter(Boolean).map((c) => (
+            {categories.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.name_th} / {c.name_en}
               </option>
@@ -115,8 +105,8 @@ function AllPins({ user, setUser }) {
 
           <button
             onClick={() => {
-              setStatus("");
               setProjectId("");
+              setStatus("");
               setCategoryId("");
             }}
             className="px-4 py-2 bg-gray-300 rounded"
@@ -125,45 +115,36 @@ function AllPins({ user, setUser }) {
           </button>
         </div>
 
-        {/* Content */}
         {loading ? (
           <div className="flex justify-center items-center h-64">
             <div className="w-12 h-12 border-4 border-green-500 border-t-transparent rounded-full animate-spin"></div>
           </div>
-        ) : pins.length === 0 ? (
-          <div className="text-center text-gray-400">ไม่มีข้อมูล</div>
-        ) : (
-          <ul className="space-y-4">
+        ) : pins.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {pins.map((pin) => (
-              <li
+              <div
                 key={pin.id}
-                className="bg-white p-4 rounded shadow flex justify-between items-center"
+                className="bg-white p-4 rounded shadow hover:bg-gray-50 transition flex justify-between"
               >
                 <div>
-                  <h3 className="text-lg font-semibold">{pin.title}</h3>
-                  <p>
+                  <p className="font-medium">{pin.title}</p>
+                  <p className="text-gray-500 text-sm">{pin.description}</p>
+                  <p className="text-gray-600 text-sm">
                     Status:{" "}
                     <span className={getStatusStyle(pin.status)}>
-                      {pin.status ?? "-"}
+                      {pin.status}
                     </span>
                   </p>
-                  <p className="text-sm text-gray-500">
-                    Project: {pin.project?.name ?? "-"}
+                  <p className="text-gray-600 text-sm">
+                    Project: {pin.project.name}
                   </p>
-                  {pin.category != null ? (
-                    <p className="text-sm text-gray-500">
-                      Category: {pin.category.name_th} / {pin.category.name_en}
-                    </p>
-                  ) : (
-                    <p className="text-sm text-gray-500">
-                      Category:{" "}
-                      <span className="text-red-500">Category has Deleted</span>
-                    </p>
-                  )}
-
+                  <p className="text-gray-600 text-sm">
+                    Category:{" "}
+                    {`${pin.category.name_th} / ${pin.category.name_th}`}
+                  </p>
                   {pin.creator != null ? (
                     <p className="text-sm text-gray-500">
-                      Creator: {pin.creator.name} (
+                      Creator: {pin.creator?.name} (
                       <span>{pin.creator.email}</span>)
                     </p>
                   ) : (
@@ -174,7 +155,7 @@ function AllPins({ user, setUser }) {
                   )}
                   {pin.approver != null ? (
                     <p className="text-sm text-gray-500">
-                      Approver: {pin.approver.name} (
+                      Approver: {pin.approver?.name} (
                       <span>{pin.approver.email}</span>)
                     </p>
                   ) : (
@@ -190,40 +171,31 @@ function AllPins({ user, setUser }) {
                   )}
                 </div>
 
-                {/* ✅ ปุ่ม Action */}
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => navigate(`/pin/edit/${pin.id}`)}
-                    className="text-blue-500 hover:underline font-medium"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={async (e) => {
-                      e.stopPropagation();
-
-                      if (!window.confirm("ยืนยันลบ Pin นี้?")) return;
-
-                      try {
-                        await api.delete(`/pins/${pin.id}`);
-                        setPins((prev) => prev.filter((p) => p.id !== pin.id));
-                      } catch (err) {
-                        console.error(err);
-                        alert("ลบไม่สำเร็จ");
-                      }
-                    }}
-                    className="text-red-500 hover:underline font-medium"
-                  >
-                    Delete
-                  </button>
-                </div>
-              </li>
+                <button
+                  onClick={async () => {
+                    if (!window.confirm("ต้องการกู้คืน Pin นี้?")) return;
+                    try {
+                      await api.post(`/pins/${pin.id}/restore`);
+                      setPins((prev) => prev.filter((p) => p.id !== pin.id));
+                    } catch {
+                      alert("กู้คืนไม่สำเร็จ");
+                    }
+                  }}
+                  className="text-green-600 hover:underline font-medium"
+                >
+                  Restore
+                </button>
+              </div>
             ))}
-          </ul>
+          </div>
+        ) : (
+          <p className="text-center text-gray-500 mt-10">
+            ไม่มี Pin ใน Recycle Bin
+          </p>
         )}
       </div>
     </div>
   );
 }
 
-export default AllPins;
+export default RecycleBinPins;

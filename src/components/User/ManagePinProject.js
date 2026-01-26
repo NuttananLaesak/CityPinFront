@@ -125,7 +125,7 @@ function ApprovePinProject({ user, setUser }) {
             onChange={(e) => setCategoryId(e.target.value)}
           >
             <option value="">All Categories</option>
-            {categories.map((c) => (
+            {categories.filter(Boolean).map((c) => (
               <option key={c.id} value={c.id}>
                 {c.name_th} / {c.name_en}
               </option>
