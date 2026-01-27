@@ -33,6 +33,7 @@ import CreateCategory from "./components/Admin/CreateCategory";
 import EditCategory from "./components/Admin/EditCategory";
 import AllCategoty from "./components/Admin/Categories";
 import RecycleCategoty from "./components/Admin/RecycleCategory";
+import Profile from "./components/Public/Profile";
 
 function App() {
   const [user, setUser] = useState(null);
@@ -82,6 +83,10 @@ function App() {
 
         {/* user routes */}
         <Route element={<ProtectedRoute user={user} />}>
+          <Route
+            path="/profile"
+            element={<Profile user={user} setUser={setUser} />}
+          />
           <Route
             path="/project/create"
             element={<CreateProject user={user} setUser={setUser} />}

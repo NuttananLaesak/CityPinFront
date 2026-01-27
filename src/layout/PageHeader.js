@@ -12,7 +12,7 @@ function PageHeader({ title, setUser }) {
       await api.post(
         "/auth/logout",
         {},
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
     } catch (error) {
       console.log("Logout error:", error);
@@ -26,12 +26,20 @@ function PageHeader({ title, setUser }) {
   return (
     <div className="flex justify-between items-center mb-6">
       <h2 className="text-3xl font-bold text-gray-800">{title}</h2>
-      <button
-        onClick={handleLogout}
-        className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
-      >
-        Log Out
-      </button>
+      <div className="flex gap-4">
+        <button
+          onClick={() => navigate("/profile")}
+          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
+        >
+          Profile
+        </button>
+        <button
+          onClick={handleLogout}
+          className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
+        >
+          Log Out
+        </button>
+      </div>
     </div>
   );
 }
