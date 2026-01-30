@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import api from "../../api/axios";
 
 function EditPin({ user }) {
-  const { id } = useParams();
+  const { projectId, id } = useParams();
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
 
@@ -32,7 +32,7 @@ function EditPin({ user }) {
     }
 
     api
-      .get(`/pins/${id}`, {
+      .get(`projects/${projectId}/pins/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {
@@ -50,7 +50,7 @@ function EditPin({ user }) {
         setImages(p.images || []);
       })
       .finally(() => setLoading(false));
-  }, [id, user, navigate, token]);
+  }, [id, projectId, user, navigate, token]);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });

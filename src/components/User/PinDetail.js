@@ -4,7 +4,7 @@ import api from "../../api/axios";
 import PageHeader from "../../layout/PageHeader";
 
 function PinDetail({ user, setUser }) {
-  const { pinId } = useParams();
+  const { projectId, pinId } = useParams();
   const navigate = useNavigate();
 
   const [pin, setPin] = useState(null);
@@ -32,7 +32,7 @@ function PinDetail({ user, setUser }) {
     const fetchPin = async () => {
       try {
         setLoading(true);
-        const res = await api.get(`/pins/${pinId}`);
+        const res = await api.get(`projects/${projectId}/pins/${pinId}`);
         console.log(res);
         setPin(res.data.pin);
       } catch (err) {
@@ -43,7 +43,7 @@ function PinDetail({ user, setUser }) {
     };
 
     fetchPin();
-  }, [user, pinId, navigate]);
+  }, [user, projectId, pinId, navigate]);
 
   if (loading) {
     return (

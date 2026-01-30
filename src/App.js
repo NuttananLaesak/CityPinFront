@@ -128,7 +128,7 @@ function App() {
             element={<CreatePin user={user} setUser={setUser} />}
           />
           <Route
-            path="/pin/edit/:id"
+            path="/projects/:projectId/pins/:id/edit"
             element={<EditPin user={user} setUser={setUser} />}
           />
           <Route

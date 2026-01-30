@@ -193,7 +193,11 @@ function AllPins({ user, setUser }) {
                 {/* ✅ ปุ่ม Action */}
                 <div className="flex gap-2">
                   <button
-                    onClick={() => navigate(`/pin/edit/${pin.id}`)}
+                    onClick={() =>
+                      navigate(
+                        `/projects/${pin.project_id}/pins/${pin.id}/edit`,
+                      )
+                    }
                     className="text-blue-500 hover:underline font-medium"
                   >
                     Edit

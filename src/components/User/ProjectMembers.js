@@ -17,15 +17,20 @@ function ProjectMembers({ user, setUser }) {
   const [memberUserId, setMemberUserId] = useState("");
   const [memberRoleId, setMemberRoleId] = useState("");
 
+  // change role
+  const [editingUserId, setEditingUserId] = useState(null);
+  const [newRoleId, setNewRoleId] = useState("");
+
   const [users, setUsers] = useState([]);
   const [roles, setRoles] = useState([]);
+
+  const isManager = myRole === "manager" || myRole === "Manager";
 
   // 🔹 fetch members
   const fetchMembers = useCallback(async () => {
     try {
       setLoading(true);
       const res = await api.get(`/projects/${projectId}/members`);
-      console.log(res.data);
       setMembers(res.data.members);
       setMyRole(res.data.user.role);
       setProjectName(res.data.project_name);
@@ -36,28 +41,33 @@ function ProjectMembers({ user, setUser }) {
     }
   }, [projectId]);
 
+  // 🔹 fetch roles (🔥 FIX)
+  const fetchRoles = useCallback(async () => {
+    try {
+      const res = await api.get(`/projects/available-roles`);
+      setRoles(res.data.roles);
+    } catch (err) {
+      console.error("โหลด roles ไม่สำเร็จ");
+    }
+  }, []);
+
   useEffect(() => {
     if (!user) {
       navigate("/login");
       return;
     }
     fetchMembers();
-  }, [user, navigate, fetchMembers]);
+    fetchRoles(); // 🔥 load roles ตั้งแต่แรก
+  }, [user, navigate, fetchMembers, fetchRoles]);
 
-  // 🔹 open modal + load users & roles
+  // 🔹 open modal
   const openAddMember = async () => {
     try {
       setShowAddMember(true);
-      const [userRes, roleRes] = await Promise.all([
-        api.get(`/projects/${projectId}/available-users`),
-        api.get(`/projects/available-roles`),
-      ]);
-
+      const userRes = await api.get(`/projects/${projectId}/available-users`);
       setUsers(userRes.data.users);
-      setRoles(roleRes.data.roles);
     } catch (err) {
-      console.error(err);
-      alert("โหลดข้อมูลผู้ใช้หรือ role ไม่สำเร็จ");
+      alert("โหลดข้อมูลไม่สำเร็จ");
     }
   };
 
@@ -84,6 +94,43 @@ function ProjectMembers({ user, setUser }) {
     }
   };
 
+  // 🔹 change role
+  const changeRole = async (userId) => {
+    if (!newRoleId) {
+      alert("กรุณาเลือก role");
+      return;
+    }
+
+    try {
+      await api.put(`/projects/${projectId}/member/role`, {
+        user_id: userId,
+        role_id: newRoleId,
+      });
+
+      alert("เปลี่ยน role สำเร็จ");
+      setEditingUserId(null);
+      setNewRoleId("");
+      fetchMembers();
+    } catch (err) {
+      alert(err.response?.data?.message || "เปลี่ยน role ไม่สำเร็จ");
+    }
+  };
+
+  // 🔹 kick member
+  const kickMember = async (userId) => {
+    if (!window.confirm("คุณต้องการลบสมาชิกคนนี้ออกจากโปรเจคหรือไม่?")) {
+      return;
+    }
+
+    try {
+      await api.delete(`/projects/${projectId}/member/${userId}`);
+      alert("ลบสมาชิกสำเร็จ");
+      fetchMembers();
+    } catch (err) {
+      alert(err.response?.data?.message || "ลบสมาชิกไม่สำเร็จ");
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex justify-center items-center">
@@ -97,7 +144,7 @@ function ProjectMembers({ user, setUser }) {
       <div className="max-w-4xl mx-auto">
         <PageHeader title={`Members - ${projectName}`} setUser={setUser} />
 
-        {myRole === "Manager" && (
+        {isManager && (
           <div
             onClick={openAddMember}
             className="cursor-pointer text-white bg-green-500 hover:bg-green-600 font-semibold py-3 px-6 mb-6 rounded-lg shadow-md text-lg text-center"
@@ -113,33 +160,79 @@ function ProjectMembers({ user, setUser }) {
                 <th className="p-3 border text-left">Name</th>
                 <th className="p-3 border text-left">Email</th>
                 <th className="p-3 border text-left">Role</th>
+                <th className="p-3 border text-left">Action</th>
               </tr>
             </thead>
             <tbody>
-              {members.length > 0 ? (
-                members.map((m) => (
-                  <tr key={m.user_id}>
-                    <td className="p-3 border">{m.name}</td>
-                    <td className="p-3 border text-gray-600">{m.email}</td>
-                    <td className="p-3 border">
-                      <span className="px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-sm">
-                        {m.role_name}
-                      </span>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="3" className="text-center p-6 text-gray-500">
-                    ยังไม่มีสมาชิกในโปรเจกต์นี้
+              {members.map((m) => (
+                <tr key={m.user_id}>
+                  <td className="p-3 border">{m.name}</td>
+                  <td className="p-3 border text-gray-600">{m.email}</td>
+                  <td className="p-3 border">
+                    <span className="px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-sm">
+                      {m.role_name}
+                    </span>
+                  </td>
+                  <td className="p-3 border">
+                    {isManager && user.id !== m.user_id ? (
+                      <div className="flex gap-3 items-center">
+                        {editingUserId === m.user_id ? (
+                          <>
+                            <select
+                              value={newRoleId}
+                              onChange={(e) => setNewRoleId(e.target.value)}
+                              className="border p-1 rounded"
+                            >
+                              <option value="">เลือก role</option>
+                              {roles.map((r) => (
+                                <option key={r.id} value={r.id}>
+                                  {r.name}
+                                </option>
+                              ))}
+                            </select>
+                            <button
+                              onClick={() => changeRole(m.user_id)}
+                              className="text-green-600 text-sm"
+                            >
+                              Save
+                            </button>
+                            <button
+                              onClick={() => setEditingUserId(null)}
+                              className="text-gray-500 text-sm"
+                            >
+                              Cancel
+                            </button>
+                          </>
+                        ) : (
+                          <button
+                            onClick={() => {
+                              setEditingUserId(m.user_id);
+                              setNewRoleId(m.role_id); // 🔥 preset role เดิม
+                            }}
+                            className="text-blue-600 text-sm"
+                          >
+                            Change Role
+                          </button>
+                        )}
+
+                        <button
+                          onClick={() => kickMember(m.user_id)}
+                          className="text-red-600 text-sm"
+                        >
+                          Kick
+                        </button>
+                      </div>
+                    ) : (
+                      <span className="text-gray-400 text-sm">-</span>
+                    )}
                   </td>
                 </tr>
-              )}
+              ))}
             </tbody>
           </table>
         </div>
 
-        {/* modal */}
+        {/* Add member modal */}
         {showAddMember && (
           <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center">
             <div className="bg-white p-6 rounded w-96">

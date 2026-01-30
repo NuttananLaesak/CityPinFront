@@ -208,7 +208,7 @@ function ApprovePinProject({ user, setUser }) {
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        navigate(`/pin/edit/${pin.id}`);
+                        navigate(`/projects/${projectId}/pins/${pin.id}/edit`);
                       }}
                       className="bg-yellow-500 text-white px-3 py-1 rounded"
                     >
