@@ -28,7 +28,7 @@ function CreatePin({ user }) {
 
     const fetchCategories = async () => {
       try {
-        const categoryRes = await api.get("categories", {
+        const categoryRes = await api.get(`projects/${projectId}/categories`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -39,7 +39,7 @@ function CreatePin({ user }) {
     };
 
     fetchCategories();
-  }, [user, token, navigate]);
+  }, [user, token, projectId, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -155,20 +155,45 @@ function CreatePin({ user }) {
         </div>
 
         {/* Category dropdown */}
+        {/* Category */}
         <div>
-          <label className="block mb-1">Category</label>
-          <select
-            value={categoryId}
-            onChange={(e) => setCategoryId(e.target.value)}
-            className="w-full border px-3 py-2 rounded"
-          >
-            <option value="">-- ไม่เลือก --</option>
-            {categories.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name_th} / {c.name_en}
-              </option>
-            ))}
-          </select>
+          <label className="block mb-1 font-semibold">Category</label>
+
+          <div className="border rounded divide-y overflow-visible">
+            {categories.map((c) => {
+              const selected = Number(categoryId) === c.id;
+
+              return (
+                <div
+                  key={c.id}
+                  onClick={() => setCategoryId(c.id)}
+                  className={`flex items-center gap-3 px-3 py-2 cursor-pointer
+            transition-transform duration-150
+            ${selected ? "scale-105 shadow-md z-10" : "scale-100"}`}
+                  style={{
+                    backgroundColor: c.color?.code || "#ffffff",
+                    opacity: selected ? 1 : 0.65,
+                  }}
+                >
+                  {c.icon?.path && (
+                    <img
+                      src={c.icon.path}
+                      alt={c.name_en}
+                      className="w-5 h-5"
+                    />
+                  )}
+
+                  <span className="text-white font-medium">
+                    {c.name_th} / {c.name_en}
+                  </span>
+
+                  {selected && (
+                    <span className="ml-auto text-white font-bold">✓</span>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </div>
 
         <div>

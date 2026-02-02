@@ -53,12 +53,10 @@ function AllPins({ user, setUser }) {
         headers: { Authorization: `Bearer ${token}` },
         params,
       });
-      console.log(res.data);
       setPins(res.data.pins);
       setStatuses(res.data.statuses);
       setProjects(res.data.projects);
       setCategories(res.data.categories);
-      console.log(res.data);
     } catch (err) {
       console.error(err);
     } finally {

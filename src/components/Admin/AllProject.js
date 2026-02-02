@@ -76,7 +76,6 @@ function Projects({ user, setUser }) {
           category_id: category || undefined,
         },
       });
-      console.log(res.data);
       setPins(res.data.pins);
       setCategories(res.data.categories);
       setSelectedProject(projectId);

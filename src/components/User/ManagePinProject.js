@@ -44,7 +44,6 @@ function ApprovePinProject({ user, setUser }) {
           category_id: categoryId || undefined,
         },
       });
-
       setPins(res.data.pins);
       setStatuses(res.data.statuses);
       setCategories(res.data.categories);

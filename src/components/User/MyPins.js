@@ -45,7 +45,6 @@ function MyPins({ user, setUser }) {
             category_id: categoryId || undefined,
           },
         });
-
         setPins(res.data.pins);
         setStatuses(res.data.statuses);
         setCategories(res.data.categories);
@@ -146,7 +145,7 @@ function MyPins({ user, setUser }) {
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      navigate(`/pin/edit/${pin.id}`);
+                      navigate(`/projects/${projectId}/pins/${pin.id}/edit`);
                     }}
                     className="text-blue-500 hover:underline font-medium"
                   >

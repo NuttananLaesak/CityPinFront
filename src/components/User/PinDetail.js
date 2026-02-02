@@ -33,7 +33,6 @@ function PinDetail({ user, setUser }) {
       try {
         setLoading(true);
         const res = await api.get(`projects/${projectId}/pins/${pinId}`);
-        console.log(res);
         setPin(res.data.pin);
       } catch (err) {
         console.error(err);

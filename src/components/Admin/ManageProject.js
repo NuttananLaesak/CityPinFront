@@ -112,7 +112,6 @@ function ManageProjects({ user, setUser }) {
           params,
         },
       );
-
       setPins(res.data.pins);
       setStatuses(res.data.statuses || []);
       setCategories(res.data.categories || []);

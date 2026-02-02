@@ -10,6 +10,7 @@ function EditPin({ user }) {
   const [images, setImages] = useState([]); // รูปเดิม
   const [newImages, setNewImages] = useState([]); // รูปที่เพิ่มใหม่
   const [deletedImages, setDeletedImages] = useState([]); // id รูปที่จะลบ
+  const [categories, setCategories] = useState([]);
 
   const [form, setForm] = useState({
     code: "",
@@ -24,19 +25,24 @@ function EditPin({ user }) {
 
   const [loading, setLoading] = useState(true);
 
-  // 🔹 load pin
+  // 🔹 load pin + categories
   useEffect(() => {
     if (!user) {
       navigate("/login");
       return;
     }
 
-    api
-      .get(`projects/${projectId}/pins/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      .then((res) => {
-        const p = res.data.pin;
+    const loadData = async () => {
+      try {
+        const [pinRes, catRes] = await Promise.all([
+          api.get(`projects/${projectId}/pins/${id}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          api.get(`projects/${projectId}/categories`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+        ]);
+        const p = pinRes.data.pin;
         setForm({
           code: p.code,
           title: p.title,
@@ -48,8 +54,12 @@ function EditPin({ user }) {
           category_id: p.category_id ?? "",
         });
         setImages(p.images || []);
-      })
-      .finally(() => setLoading(false));
+        setCategories(catRes.data.categories || []);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadData();
   }, [id, projectId, user, navigate, token]);
 
   const handleChange = (e) => {
@@ -72,8 +82,8 @@ function EditPin({ user }) {
     });
 
     // id รูปที่ลบ
-    deletedImages.forEach((id) => {
-      formData.append("deleted_images[]", id);
+    deletedImages.forEach((imgId) => {
+      formData.append("deleted_images[]", imgId);
     });
 
     try {
@@ -105,92 +115,132 @@ function EditPin({ user }) {
         <h2 className="text-2xl font-bold mb-4">Edit Pin</h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className=" font-semibold">Code</div>
+          {/* Code */}
+          <div className="font-semibold">Code</div>
           <input
             name="code"
             value={form.code}
             onChange={handleChange}
             className="w-full border p-2 rounded"
-            placeholder="Code"
           />
-          <div className=" font-semibold">Title</div>
+
+          {/* Title */}
+          <div className="font-semibold">Title</div>
           <input
             name="title"
             value={form.title}
             onChange={handleChange}
             className="w-full border p-2 rounded"
-            placeholder="Title"
           />
-          <div className=" font-semibold">Description</div>
+
+          {/* Description */}
+          <div className="font-semibold">Description</div>
           <textarea
             name="description"
             value={form.description}
             onChange={handleChange}
             className="w-full border p-2 rounded"
-            placeholder="Description"
           />
-          <div className="font-semibold">Lat,Lng</div>
+
+          {/* Category */}
+          <div className="font-semibold">Category</div>
+          <div className="border rounded divide-y overflow-visible">
+            {categories.map((c) => {
+              const selected = Number(form.category_id) === c.id;
+              return (
+                <div
+                  key={c.id}
+                  onClick={() => setForm({ ...form, category_id: c.id })}
+                  className={`flex items-center gap-3 px-3 py-2 cursor-pointer
+          transition-transform duration-150
+          ${selected ? "scale-105 shadow-md z-10" : "scale-100"}`}
+                  style={{
+                    backgroundColor: c.color?.code || "#ffffff",
+                    opacity: selected ? 1 : 0.65,
+                  }}
+                >
+                  {c.icon?.path && (
+                    <img
+                      src={c.icon.path}
+                      alt={c.name_en}
+                      className="w-5 h-5"
+                    />
+                  )}
+                  <span className="text-white font-medium">
+                    {c.name_th} / {c.name_en}
+                  </span>
+                  {selected && (
+                    <span className="ml-auto text-white font-bold">✓</span>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Lat Lng */}
+          <div className="font-semibold">Lat, Lng</div>
           <div className="flex gap-2">
             <input
               name="lat"
               value={form.lat}
               onChange={handleChange}
               className="w-full border p-2 rounded"
-              placeholder="Latitude"
             />
             <input
               name="lng"
               value={form.lng}
               onChange={handleChange}
               className="w-full border p-2 rounded"
-              placeholder="Longitude"
             />
           </div>
+
+          {/* Address */}
           <div className="font-semibold">Address</div>
           <input
             name="address_text"
             value={form.address_text}
             onChange={handleChange}
             className="w-full border p-2 rounded"
-            placeholder="Address"
           />
-          <div>
-            <input
-              type="file"
-              multiple
-              accept="image/*"
-              onChange={(e) => {
-                setNewImages([...newImages, ...Array.from(e.target.files)]);
-              }}
-            />
-          </div>
+
+          {/* New Images */}
+          <input
+            type="file"
+            multiple
+            accept="image/*"
+            onChange={(e) =>
+              setNewImages([...newImages, ...Array.from(e.target.files)])
+            }
+          />
+
           {newImages.length > 0 && (
             <>
-              <div className="font-semibold">New Image</div>
+              <div className="font-semibold">New Images</div>
               <div className="grid grid-cols-3 gap-3">
                 {newImages.map((file, idx) => (
                   <img
+                    key={idx}
                     src={URL.createObjectURL(file)}
-                    alt="New Pin"
                     className="h-24 w-full object-cover rounded"
+                    alt=""
                   />
                 ))}
               </div>
             </>
           )}
 
+          {/* Old Images */}
           {images.length > 0 && (
             <>
-              <div className="font-semibold">Old Image</div>
+              <div className="font-semibold">Old Images</div>
               <div className="grid grid-cols-3 gap-3">
                 {images.map((img) => (
                   <div key={img.id} className="relative">
                     <img
                       src={`http://127.0.0.1:8000/storage/${img.path}`}
-                      alt="Old Pin"
                       className="h-24 w-full object-cover rounded"
+                      alt=""
                     />
-
                     <button
                       type="button"
                       onClick={() => {

@@ -44,7 +44,6 @@ function AllPins({ user, setUser }) {
       setStatuses(res.data.statuses);
       setProjects(res.data.projects);
       setCategories(res.data.categories);
-      console.log(res.data);
     } catch (err) {
       console.error(err);
     } finally {
@@ -58,7 +57,7 @@ function AllPins({ user, setUser }) {
       await axios.post(
         "http://127.0.0.1:8000/api/auth/logout",
         {},
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
     } finally {
       localStorage.removeItem("token");

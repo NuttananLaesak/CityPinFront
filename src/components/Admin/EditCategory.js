@@ -26,7 +26,7 @@ function EditCategoryForm({ user }) {
           `http://127.0.0.1:8000/api/categories/${id}`,
           {
             headers: { Authorization: `Bearer ${token}` },
-          }
+          },
         );
 
         const category = res.data.category;
@@ -60,7 +60,7 @@ function EditCategoryForm({ user }) {
           icon: icon,
           is_active: isActive,
         },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
 
       setMessage("Category updated successfully");
