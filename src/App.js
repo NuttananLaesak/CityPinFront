@@ -33,6 +33,10 @@ import CreateCategory from "./components/Admin/CreateCategory";
 import EditCategory from "./components/Admin/EditCategory";
 import AllCategoty from "./components/Admin/Categories";
 import RecycleCategoty from "./components/Admin/RecycleCategory";
+import AddIcon from "./components/Admin/AddIcon";
+import AllIcon from "./components/Admin/IconList";
+import AddColor from "./components/Admin/AddColor";
+import AllColor from "./components/Admin/ColorList";
 import Profile from "./components/Public/Profile";
 
 function App() {
@@ -190,6 +194,22 @@ function App() {
           <Route
             path="/admin/category/recycle"
             element={<RecycleCategoty user={user} setUser={setUser} />}
+          />
+          <Route
+            path="/admin/category/icons/add"
+            element={<AddIcon user={user} setUser={setUser} />}
+          />
+          <Route
+            path="/admin/category/icons"
+            element={<AllIcon user={user} setUser={setUser} />}
+          />
+          <Route
+            path="/admin/category/colors/add"
+            element={<AddColor user={user} setUser={setUser} />}
+          />
+          <Route
+            path="/admin/category/colors"
+            element={<AllColor user={user} setUser={setUser} />}
           />
         </Route>
 

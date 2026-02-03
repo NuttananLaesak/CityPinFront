@@ -99,6 +99,18 @@ function Dashboard({ user, setUser }) {
             <h3 className="text-lg font-semibold">Recycle Category</h3>
           </div>
           <div
+            onClick={() => navigate("/admin/category/icons")}
+            className="bg-white p-4 rounded shadow cursor-pointer hover:bg-gray-50 transition"
+          >
+            <h3 className="text-lg font-semibold">All Icon Category</h3>
+          </div>
+          <div
+            onClick={() => navigate("/admin/category/colors")}
+            className="bg-white p-4 rounded shadow cursor-pointer hover:bg-gray-50 transition"
+          >
+            <h3 className="text-lg font-semibold">All Color Category</h3>
+          </div>
+          <div
             onClick={() => navigate("/admin/pin/all")}
             className="bg-white p-4 rounded shadow cursor-pointer hover:bg-gray-50 transition"
           >

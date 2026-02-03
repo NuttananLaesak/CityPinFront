@@ -52,8 +52,11 @@ function CreateProject({ user }) {
           }),
         ]);
 
-        setIcons(iconRes.data);
-        setColors(colorRes.data);
+        console.log("iconRes.data", iconRes.data);
+        console.log("colorRes.data", colorRes.data);
+
+        setIcons(iconRes.data.icons); // ✅ ถูกต้อง
+        setColors(colorRes.data.colors); // ✅ แก้ตรงนี้
       } catch (err) {
         console.error("load meta failed", err);
       }
@@ -204,7 +207,7 @@ function CreateProject({ user }) {
                 {/* COLOR PICKER */}
                 <div>
                   <div className="text-sm mb-1">เลือกสี</div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 flex-wrap">
                     {colors.map((color) => (
                       <button
                         type="button"
@@ -215,7 +218,7 @@ function CreateProject({ user }) {
                         className={`w-8 h-8 rounded-full border ${
                           cat.color_id === color.id ? "ring-2 ring-black" : ""
                         }`}
-                        style={{ backgroundColor: color.code }}
+                        style={{ backgroundColor: color.code }} // ✅ สีขึ้นตรงนี้
                       />
                     ))}
                   </div>

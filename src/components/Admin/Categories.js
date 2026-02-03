@@ -27,6 +27,7 @@ function Categories({ user, setUser }) {
         }),
       ]);
 
+      console.log("All Categories:", allRes.data);
       setAllCategories(allRes.data.categories);
       setActiveCategories(activeRes.data.categories);
       setInactiveCategories(inactiveRes.data.categories);
@@ -54,7 +55,13 @@ function Categories({ user, setUser }) {
         >
           <div className="flex items-center gap-2">
             {cat.icon && (
-              <img src={cat.icon} alt={cat.name_th} className="w-6 h-6" />
+              <img src={cat.icon.path} alt={cat.name_th} className="w-6 h-6" />
+            )}
+            {cat.color && (
+              <div
+                className="w-6 h-6 rounded"
+                style={{ backgroundColor: cat.color.code }}
+              />
             )}
             <div>
               <div className="font-semibold">
